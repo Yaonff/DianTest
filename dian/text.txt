@@ -1,6 +1,41 @@
-12345
-2215648
-484818
-198485
-dawbdu
-sdjijwidjdjowjo
+这个警告出现的原因是：你在当前 Git 仓库（ExamTest）中运行了 git add .，但在子文件夹 dian 中也存在一个 .git 文件夹（它本身也是一个独立的 Git 仓库）。
+
+Git 默认不允许直接把一个内嵌的 Git 仓库当作普通文件夹提交，因为主仓库无法追踪子仓库内部文件的变化。
+
+根据你的实际需求，你可以选择以下两种最常用的解决方法：
+
+方案一：把 dian 变成主仓库里的一个普通文件夹（最推荐）
+如果你只是想把 dian 文件夹里的代码正常提交到主仓库，不需要它保持一个独立仓库的身分，请按以下步骤操作：
+
+1. 清除当前暂存区中的错误索引
+Bash
+git rm --cached dian
+(注意：这不会删除你的文件，只是取消对它的错误暂存)
+
+2. 删除子文件夹中的 .git 隐藏目录
+在终端中进入 dian 文件夹并删除其内部的 .git（或者直接在文件管理器中显示隐藏文件并删除它）：
+
+Bash
+rm -rf dian/.git
+3. 重新添加并提交
+回到主项目根目录，重新添加，此时它就会被当作普通文件夹对待了：
+
+Bash
+git add dian
+git commit -m "Add dian folder normally"
+方案二：将 dian 转换为真正的 Git 子模块（Submodule）
+如果你希望 dian 保持为一个独立的 Git 仓库，并且可以从远程（比如 GitHub/GitLab）单独拉取或推代码，你需要将它注册为官方的 Submodule：
+
+1. 清除当前暂存区中的错误索引
+Bash
+git rm --cached dian
+2. 正确添加为子模块
+使用 git submodule add 命令，并带上它原本对应的远程仓库 URL：
+
+Bash
+git submodule add <该仓库的远程URL> dian
+3. 提交更改
+Git 会自动生成一个 .gitmodules 文件，将它们一并提交即可：
+
+Bash
+git commit -m "Add dian as a submodule"
